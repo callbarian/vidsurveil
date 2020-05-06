@@ -1,7 +1,7 @@
 import os
 from os import path
 import time
-
+import cutWithSlide
 
 def prepare_video(video_directory):
     
@@ -24,7 +24,7 @@ def split_video(video_directory,move_directory,count):
         
             save_path = video_directory +'/'+ name + '/' + name
             file_path= video_directory +'/'+ name + '/' + file2
-            os.popen('ffmpeg -i ' + file_path + ' -c copy -map 0 -f segment -segment_time 60 -reset_timestamps 1 -segment_format_options movflags=+faststart ' + save_path + '%03d.mp4')
+            cutWithSlide.cut(file_path,save_path)
             time.sleep(count)
             print("deliberately delaying to prevent crash")
             #with delaying few seconds, the below command will be executed before ffmpeg finish its job. Or it could get into the next loop and start another ffmpeg process, and it will lead to a crash.
