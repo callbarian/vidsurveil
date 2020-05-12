@@ -47,7 +47,7 @@ class vidsurveil(QDialog):
         #self.label_3.clicked.connect(self.prepare_videos)
         #self.label_5.clicked.connect(self.extract_features)
         #pass  # call __init__(self) of the custom base class here
-
+        clickable(self.label_2).connect(self.logo)
         clickable(self.label_3).connect(self.select_Files)
         clickable(self.label_4).connect(self.prepare_videos)
         clickable(self.label_5).connect(self.extract_features)
@@ -65,6 +65,9 @@ class vidsurveil(QDialog):
         layout5.addWidget(self.label_5)
         
         
+
+    def logo(self):
+        print("")
 
     def select_Files(self):
         fname = QFileDialog.getOpenFileName(self)
