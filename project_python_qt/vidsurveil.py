@@ -1,5 +1,6 @@
 # This Python file uses the following encoding: utf-8
 import subprocess
+import os
 import sys
 import PyQt5
 import functools
@@ -29,7 +30,7 @@ def clickable(widget):
     widget.installEventFilter(filter)
     return filter.clicked
 
-click = '/Users/iseongmin/Downloads/qt_projects/project_python_qt/file_dialog.ui'
+click = '/home/callbarian/vidsurveil/project_python_qt/file_dialog.ui'
 #click = '/Users/iseongmin/Downloads/gui/application.ui'
 class vidsurveil(QDialog):
     def __init__(self):
@@ -88,31 +89,43 @@ class vidsurveil(QDialog):
                 x = msg.exec_()
         
     def prepare_videos(self):
-        print("hi")
-        result = subprocess.Popen(['python', '/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/run_feature_extraction.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        print("preparing videos.......")
+        result = subprocess(['python', '/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/run_feature_extraction.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         #result = subprocess.Popen(['python', '/Users/iseongmin/Downloads/qt_projects/application/application.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        
         out= result.communicate()
         print(out[0])
 
     def extract_features(self):
-        #print("hi")
-        result = subprocess.Popen(['python', '/home/callbarian/C3D/C3D-v1.0/examples/run_feature_extraction.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        out = result.communicate()
-        result_message = out[0]
-        print(result_message)
+        print("extracting........")
+        os.system('sh ' + '/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/feature_extraction.sh')
+        #result = subprocess.Popen(['sh','/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/call_environment.sh','/home/callbarian/bin/miniconda3/envs/c3d_py36/bin/python','/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/extract_C3D_feature.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
 
-        result = subprocess.Popen(['source', '/home/callbarian/C3D/C3D-v1.0/examples/switch_environment.sh'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        out = result.communicate()
-        result_message = out[0].decode()
-        if(result_message.split('::')[1]) is 'Anaconda, Inc.':
-            msg = QMessageBox()
-            msg.setWindowTitle("C3D to Anomaly")
-            msg.setText("switch environment successfully")
-            msg.setStandardButtons(QMessageBox.Ok)
-            x = msg.exec_()
 
-        result = subprocess.Popen(['python', '/home/callbarian/AnomalyDetectionCVPR2018-master/Demo_GUI.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        out = result.communicate()
+        #result = subprocess.Popen(['python', '/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/extract_C3D_feature.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        #(out, err) = result.communicate()
+        #print(out)
+        #result.wait()
+        #os.popen('python ' + '/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/extract_C3D_feature.py')
+        #print("this is after feature extraction....")
+        #result_message = out[0]
+
+
+        #result = subprocess.Popen(['sh','/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/call_environment.sh','/home/callbarian/bin/miniconda3/envs/Anomaly_py36/bin/python','/home/callbarian/AnomalyDetectionCVPR2018-master/Demo_GUI.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+        #(out,err) = result.communicate()
+        #print(out)
+        #result.wait()
+        
+         #result_message = out[0].decode()
+#        if(result_message.split('::')[1]) is 'Anaconda, Inc.':
+#            msg = QMessageBox()
+#            msg.setWindowTitle("C3D to Anomaly")
+#            msg.setText("switch environment successfully")
+#            msg.setStandardButtons(QMessageBox.Ok)
+#            x = msg.exec_()
+
+        #result = subprocess.Popen(['python', '/home/callbarian/AnomalyDetectionCVPR2018-master/Demo_GUI.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+       # out = result.communicate()
 
 if __name__ == "__main__":
     app = QApplication([])
