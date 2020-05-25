@@ -91,8 +91,7 @@ class vidsurveil(QDialog):
     def prepare_videos(self):
         print("preparing videos.......")
         result = subprocess(['python', '/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/run_feature_extraction.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        #result = subprocess.Popen(['python', '/Users/iseongmin/Downloads/qt_projects/application/application.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-        
+       
         out= result.communicate()
         print(out[0])
 
@@ -100,32 +99,14 @@ class vidsurveil(QDialog):
         print("extracting........")
         os.system('sh ' + '/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/feature_extraction.sh')
         #result = subprocess.Popen(['sh','/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/call_environment.sh','/home/callbarian/bin/miniconda3/envs/c3d_py36/bin/python','/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/extract_C3D_feature.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-
-
-        #result = subprocess.Popen(['python', '/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/extract_C3D_feature.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         #(out, err) = result.communicate()
         #print(out)
         #result.wait()
-        #os.popen('python ' + '/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/extract_C3D_feature.py')
-        #print("this is after feature extraction....")
-        #result_message = out[0]
-
 
         #result = subprocess.Popen(['sh','/home/callbarian/C3D/C3D-v1.0/examples/c3d_feature_extraction/call_environment.sh','/home/callbarian/bin/miniconda3/envs/Anomaly_py36/bin/python','/home/callbarian/AnomalyDetectionCVPR2018-master/Demo_GUI.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
         #(out,err) = result.communicate()
         #print(out)
-        #result.wait()
-        
-         #result_message = out[0].decode()
-#        if(result_message.split('::')[1]) is 'Anaconda, Inc.':
-#            msg = QMessageBox()
-#            msg.setWindowTitle("C3D to Anomaly")
-#            msg.setText("switch environment successfully")
-#            msg.setStandardButtons(QMessageBox.Ok)
-#            x = msg.exec_()
-
-        #result = subprocess.Popen(['python', '/home/callbarian/AnomalyDetectionCVPR2018-master/Demo_GUI.py'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
-       # out = result.communicate()
+        #
 
 if __name__ == "__main__":
     app = QApplication([])
