@@ -37,6 +37,75 @@ numpy.random.seed(seed)
 from keras import backend as K
 import os
 import math
+import time_merge
+import glob
+import shutil
+import subprocess
+import decimal
+
+total_frame=0
+time_series=[]
+final_time_series=[]
+
+def save_video(save_path,video_path,frame_list):
+    temp_path= save_path
+    file_name = video_path.split('/')[-1]
+    file_name = file_name.split('.')[0]
+    '''
+    if not os.path.isdir(temp_path):
+        os.mkdir(temp_path)
+    result_path='./result/'
+    if not os.path.isdir(result_path):
+        os.mkdir(result_path)
+    '''
+    fps = 30
+    print("frame_list : ",frame_list)
+    print("video_path : "+video_path)
+    
+    frame_to_seconds = []
+    frame_to_seconds.append("timestamps in seconds")
+    for each_framelists in frame_list:
+        start_frame = decimal.Decimal(each_framelists[0]/fps)
+        end_frame = decimal.Decimal(each_framelists[1]/fps)
+        frames_to_string = '[' + str('{:.2f}'.format(start_frame)) + ',' + str('{:.2f}'.format(end_frame)) + ']'
+        frame_to_seconds.append(frames_to_string)
+    
+    #print(frame_to_seconds)
+    
+    #'i' is the wanomaly video number 
+    i=0  
+    for frame_set in frame_list: 
+        #print('frame set :', frame_set)
+        #frame to time
+        frame_set[1]=(frame_set[1]-frame_set[0])/fps
+        frame_set[0]/=fps
+        #ffmpeg video extractiont
+        result=subprocess.Popen(['ffmpeg','-y','-ss',str(frame_set[0]),'-i',video_path, '-t',str(frame_set[1]), '-c', 'copy', save_path+file_name+str(i).zfill(4)+'.mp4'],stdout=subprocess.PIPE,stderr=subprocess.PIPE)  
+        output = result.communicate()
+        print(output)
+        result.wait()
+        i+=1
+   
+   
+
+    
+    timestamp_name = file_name + '.txt'
+    
+    print(timestamp_name)
+
+    timestamp_path = save_path + timestamp_name
+
+    print(timestamp_path)
+
+    with open(timestamp_path,"w") as f:
+        for i in frame_to_seconds:
+            
+            f.write(str(i))
+            print(str(i))
+
+    print('save_video done')
+    
+    return
 
 def set_keras_backend(backend):
 
@@ -157,16 +226,33 @@ class PrettyWidget(QtWidgets.QWidget):
        # global score_function
        # score_function = Initialization_function.get_prediction_function()
 
-
-
+        global time_series
+        global total_frame
+         
+        time_series = []
+        save_path = '/home/callbarian/C3D/saved_videos/'
+        original_path = '/home/callbarian/C3D/moved_videos/'
         btn.resize(btn.sizeHint())
         for file in os.listdir("/home/callbarian/C3D/videos"):
+            video_format = ''
             for file2 in os.listdir("/home/callbarian/C3D/videos/" + file):
+                if(file2.split('.')[1] != 'txt'):
+                    video_format = file2
                 read_file = "/home/callbarian/C3D/videos/"+ file + "/" + file2  
                 self.SingleBrowse(read_file)
                 btn.move(150, 200)
                 self.show()
-
+            video_format = '.' + video_format.split('.')[1]    
+            print("video format : " + video_format)
+            video_path = original_path + file + video_format   
+            save_video(save_path,video_path,time_series)
+            print(time_series)
+            time_series = []
+            total_frame = 0    
+        #time_series=time_merge.time_stamp(total_frame,time_series)
+        #print("time series : ",time_series)
+        
+       #save_video(save_path,time_series)
        # btn.clicked.connect(self.SingleBrowse)
        # btn.move(150, 200)
        #  self.show()
@@ -175,7 +261,10 @@ class PrettyWidget(QtWidgets.QWidget):
 
 
 
+
+
     def SingleBrowse(self,read_file):
+        global total_frame
         video_path = read_file
         verify_path = video_path[-4:]
         #print(verify_path)
@@ -230,6 +319,11 @@ class PrettyWidget(QtWidgets.QWidget):
         Anomaly_Detected = 0
         flag = Total_frames
         print(Total_frames)
+        #temp,flag,anomaly_start,anomaly_finish  is list of the frame that present the anomaly
+        flag_of_frame=0
+        anomaly_start=0
+        anomaly_finish=0
+        temp=[]
         while True:
             #flag, frame = cap.read()
             flag = flag - 1
@@ -237,19 +331,23 @@ class PrettyWidget(QtWidgets.QWidget):
             if flag>0:
                 i = i + 1
                 #cv2.imshow('video', frame)
-                if(scores1[i-1]>0.4):
-                    #print("Anomaly Detected......")
-                    Anomaly_Detected = Anomaly_Detected + 1
-                    #print("Anomaly Detected: "+ str(Anomaly_Detected))
-                    if(Anomaly_Detected==1):
-                        os.popen('cp '+ video_path + ' /home/callbarian/C3D/saved_videos/')
-                        print("Anomaly Detected.........")
+               
+                sensitivity=0.4
+                #if the score >=0.4, we append the frame number of the video to the list temp.
+                if scores1[i-1]>=sensitivity and flag_of_frame==0:
+                    flag_of_frame=1
+                    anomaly_start=i-1+total_frame
+                if scores1[i-1]<=sensitivity and flag_of_frame==1:
+                    flag_of_frame=0
+                    anomaly_finish=i-1+total_frame
+                    time_series.append([int(anomaly_start),int(anomaly_finish)])
+                
 
                 jj=i%25
                 if jj==1:
                     #if i>1:
                         #print(scores1[i-25:i])
-                    plt.plot(x[:i], scores1[:i], color='r', linewidth=3)
+                    plt.plot(x[:i], scores1[:i], color='g',marker="o",ms=5,mec="g",mfc="g", linewidth=3)
                     plt.draw()
                     plt.pause(0.000000000000000000000001)
 
@@ -273,6 +371,10 @@ class PrettyWidget(QtWidgets.QWidget):
                 break
 
 
+        total_frame+=i
+        print(time_series)
+        print("total frame : ", total_frame)
+
 def main():
     app = QtWidgets.QApplication(sys.argv)
     w = PrettyWidget()
@@ -281,4 +383,13 @@ def main():
 
 main()
 
+'''
+                if(scores1[i-1]>0.4):
+                    #print("Anomaly Detected......")
+                    Anomaly_Detected = Anomaly_Detected + 1
+                    #print("Anomaly Detected: "+ str(Anomaly_Detected))
+                    if(Anomaly_Detected==1):
+                        os.popen('cp '+ video_path + ' /home/callbarian/C3D/saved_videos/')
+                        print("Anomaly Detected.........")
 
+'''
